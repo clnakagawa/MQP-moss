@@ -1,0 +1,7 @@
+,condition,type
+A3,ts,paired-end
+B3,ts,paired-end
+C3,ts,paired-end
+A4,tsHeat,paired-end
+B4,tsHeat,paired-end
+C4,tsHeat,paired-end

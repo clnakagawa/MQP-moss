@@ -1,0 +1,7 @@
+,condition,type
+A1,wt,paired-end
+B1,wt,paired-end
+C1,wt,paired-end
+A2,wtHeat,paired-end
+B2,wtHeat,paired-end
+C2,wtHeat,paired-end
