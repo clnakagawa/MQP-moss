@@ -1,0 +1,18 @@
+"a","Freq"
+"membrane [GO:0016020]",17
+"nucleus [GO:0005634]",8
+"cytoplasm [GO:0005737]",5
+"cytosol [GO:0005829]",4
+"plasma membrane [GO:0005886]",4
+"chloroplast stroma [GO:0009570]",2
+"nucleosome [GO:0000786]",2
+"perinuclear region of cytoplasm [GO:0048471]",2
+"protein-containing complex [GO:0032991]",2
+"chloroplast [GO:0009507]",1
+"chloroplast membrane [GO:0031969]",1
+"chloroplast thylakoid membrane [GO:0009535]",1
+"extracellular region [GO:0005576]",1
+"mitochondrial matrix [GO:0005759]",1
+"nucleolus [GO:0005730]",1
+"photosystem II oxygen evolving complex [GO:0009654]",1
+"thylakoid [GO:0009579]",1

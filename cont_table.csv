@@ -1,0 +1,7 @@
+,condition,type
+A1,wt,paired-end
+B1,wt,paired-end
+C1,wt,paired-end
+A3,ts,paired-end
+B3,ts,paired-end
+C3,ts,paired-end

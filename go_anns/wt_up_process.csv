@@ -1,0 +1,38 @@
+"a","Freq"
+"protein folding [GO:0006457]",20
+"response to heat [GO:0009408]",16
+"protein complex oligomerization [GO:0051259]",13
+"response to hydrogen peroxide [GO:0042542]",13
+"response to salt stress [GO:0009651]",13
+"protein refolding [GO:0042026]",6
+"chaperone cofactor-dependent protein refolding [GO:0051085]",5
+"cellular response to heat [GO:0034605]",3
+"carbohydrate metabolic process [GO:0005975]",2
+"protein stabilization [GO:0050821]",2
+"asparagine biosynthetic process [GO:0006529]",1
+"cell wall macromolecule catabolic process [GO:0016998]",1
+"chitin catabolic process [GO:0006032]",1
+"defense response [GO:0006952]",1
+"defense response to fungus [GO:0050832]",1
+"endoplasmic reticulum unfolded protein response [GO:0030968]",1
+"glutamine metabolic process [GO:0006541]",1
+"intracellular manganese ion homeostasis [GO:0030026]",1
+"intracellular sequestering of iron ion [GO:0006880]",1
+"nucleosome assembly [GO:0006334]",1
+"photosynthesis [GO:0015979]",1
+"proteasome-mediated ubiquitin-dependent protein catabolic process [GO:0043161]",1
+"protein dephosphorylation [GO:0006470]",1
+"protein peptidyl-prolyl isomerization [GO:0000413]",1
+"protein phosphorylation [GO:0006468]",1
+"protein ubiquitination [GO:0016567]",1
+"regulation of transcription by RNA polymerase II [GO:0006357]",1
+"response to abscisic acid [GO:0009737]",1
+"response to chemical [GO:0042221]",1
+"response to endoplasmic reticulum stress [GO:0034976]",1
+"response to gibberellin [GO:0009739]",1
+"response to water deprivation [GO:0009414]",1
+"SCF-dependent proteasomal ubiquitin-dependent protein catabolic process [GO:0031146]",1
+"trehalose catabolic process [GO:0005993]",1
+"trichome morphogenesis [GO:0010090]",1
+"tryptophan catabolic process to kynurenine [GO:0019441]",1
+"ubiquitin-dependent ERAD pathway [GO:0030433]",1

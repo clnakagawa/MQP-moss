@@ -1,0 +1,43 @@
+"a","Freq"
+"unfolded protein binding [GO:0051082]",17
+"ATP binding [GO:0005524]",14
+"protein self-association [GO:0043621]",13
+"ATP-dependent protein folding chaperone [GO:0140662]",9
+"ATP hydrolysis activity [GO:0016887]",8
+"DNA binding [GO:0003677]",5
+"protein folding chaperone [GO:0044183]",5
+"heat shock protein binding [GO:0031072]",4
+"protein-folding chaperone binding [GO:0051087]",4
+"metal ion binding [GO:0046872]",3
+"protein heterodimerization activity [GO:0046982]",3
+"structural constituent of chromatin [GO:0030527]",3
+"DNA-binding transcription factor activity [GO:0003700]",2
+"peptidyl-prolyl cis-trans isomerase activity [GO:0003755]",2
+"2 iron, 2 sulfur cluster binding [GO:0051537]",1
+"ADP binding [GO:0043531]",1
+"aldo-keto reductase (NADP) activity [GO:0004033]",1
+"alpha,alpha-trehalase activity [GO:0004555]",1
+"asparagine synthase (glutamine-hydrolyzing) activity [GO:0004066]",1
+"carbohydrate binding [GO:0030246]",1
+"chitin binding [GO:0008061]",1
+"chitinase activity [GO:0004568]",1
+"DNA-binding transcription factor activity, RNA polymerase II-specific [GO:0000981]",1
+"electron transfer activity [GO:0009055]",1
+"glycosyltransferase activity [GO:0016757]",1
+"heme binding [GO:0020037]",1
+"hydrolase activity, acting on ester bonds [GO:0016788]",1
+"hydrolase activity, hydrolyzing O-glycosyl compounds [GO:0004553]",1
+"iron ion transmembrane transporter activity [GO:0005381]",1
+"manganese ion transmembrane transporter activity [GO:0005384]",1
+"protein dimerization activity [GO:0046983]",1
+"protein disulfide isomerase activity [GO:0003756]",1
+"protein kinase activity [GO:0004672]",1
+"protein serine/threonine phosphatase activity [GO:0004722]",1
+"protein-disulfide reductase activity [GO:0015035]",1
+"ribulose-1,5-bisphosphate carboxylase/oxygenase activator activity [GO:0046863]",1
+"RNA polymerase II cis-regulatory region sequence-specific DNA binding [GO:0000978]",1
+"transcription coactivator activity [GO:0003713]",1
+"transferase activity [GO:0016740]",1
+"ubiquitin protein ligase activity [GO:0061630]",1
+"ubiquitin-protein transferase activity [GO:0004842]",1
+"zinc ion binding [GO:0008270]",1

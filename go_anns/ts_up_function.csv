@@ -1,0 +1,53 @@
+"a","Freq"
+"unfolded protein binding [GO:0051082]",17
+"protein self-association [GO:0043621]",13
+"ATP binding [GO:0005524]",10
+"ATP hydrolysis activity [GO:0016887]",7
+"ATP-dependent protein folding chaperone [GO:0140662]",6
+"DNA binding [GO:0003677]",6
+"metal ion binding [GO:0046872]",6
+"protein folding chaperone [GO:0044183]",5
+"heat shock protein binding [GO:0031072]",4
+"protein-folding chaperone binding [GO:0051087]",4
+"zinc ion binding [GO:0008270]",4
+"DNA-binding transcription factor activity [GO:0003700]",3
+"oxidoreductase activity [GO:0016491]",3
+"heme binding [GO:0020037]",2
+"protein heterodimerization activity [GO:0046982]",2
+"structural constituent of chromatin [GO:0030527]",2
+"ubiquitin protein ligase activity [GO:0061630]",2
+"ADP binding [GO:0043531]",1
+"alpha,alpha-trehalase activity [GO:0004555]",1
+"asparagine synthase (glutamine-hydrolyzing) activity [GO:0004066]",1
+"calcium ion binding [GO:0005509]",1
+"carbohydrate binding [GO:0030246]",1
+"carotenoid dioxygenase activity [GO:0010436]",1
+"catechol oxidase activity [GO:0004097]",1
+"chitin binding [GO:0008061]",1
+"chitinase activity [GO:0004568]",1
+"cytokinin dehydrogenase activity [GO:0019139]",1
+"dCTP diphosphatase activity [GO:0047840]",1
+"DNA-binding transcription factor activity, RNA polymerase II-specific [GO:0000981]",1
+"electron transfer activity [GO:0009055]",1
+"FAD binding [GO:0071949]",1
+"hydrolase activity, acting on ester bonds [GO:0016788]",1
+"hydrolase activity, hydrolyzing O-glycosyl compounds [GO:0004553]",1
+"iron ion binding [GO:0005506]",1
+"kinase activity [GO:0016301]",1
+"kinase inhibitor activity [GO:0019210]",1
+"magnesium ion binding [GO:0000287]",1
+"monosaccharide transmembrane transporter activity [GO:0015145]",1
+"nucleic acid binding [GO:0003676]",1
+"oxidoreductase activity, acting on paired donors, with incorporation or reduction of molecular oxygen, NAD(P)H as one donor, and incorporation of one atom of oxygen [GO:0016709]",1
+"peptidyl-prolyl cis-trans isomerase activity [GO:0003755]",1
+"protein dimerization activity [GO:0046983]",1
+"protein kinase activity [GO:0004672]",1
+"protein serine/threonine phosphatase activity [GO:0004722]",1
+"ribulose-1,5-bisphosphate carboxylase/oxygenase activator activity [GO:0046863]",1
+"RNA polymerase II cis-regulatory region sequence-specific DNA binding [GO:0000978]",1
+"sequence-specific DNA binding [GO:0043565]",1
+"symporter activity [GO:0015293]",1
+"transcription coactivator activity [GO:0003713]",1
+"transferase activity [GO:0016740]",1
+"ubiquitin-protein transferase activity [GO:0004842]",1
+"UTP:glucose-1-phosphate uridylyltransferase activity [GO:0003983]",1

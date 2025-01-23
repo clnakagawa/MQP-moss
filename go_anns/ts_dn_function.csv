@@ -1,0 +1,46 @@
+"a","Freq"
+"ATP binding [GO:0005524]",5
+"metal ion binding [GO:0046872]",5
+"DNA-binding transcription factor activity [GO:0003700]",4
+"protein dimerization activity [GO:0046983]",3
+"protein kinase activity [GO:0004672]",3
+"acyl-[acyl-carrier-protein] desaturase activity [GO:0045300]",2
+"ADP binding [GO:0043531]",2
+"heme binding [GO:0020037]",2
+"4-alpha-glucanotransferase activity [GO:0004134]",1
+"ABC-type transporter activity [GO:0140359]",1
+"aminoacetone:oxygen oxidoreductase(deaminating) activity [GO:0052594]",1
+"aspartyl esterase activity [GO:0045330]",1
+"ATP hydrolysis activity [GO:0016887]",1
+"ATPase-coupled transmembrane transporter activity [GO:0042626]",1
+"beta-maltose 4-alpha-glucanotransferase activity [GO:0102500]",1
+"calcium:proton antiporter activity [GO:0015369]",1
+"carbohydrate binding [GO:0030246]",1
+"catechol oxidase activity [GO:0004097]",1
+"cellulase activity [GO:0008810]",1
+"copper ion binding [GO:0005507]",1
+"copper ion transmembrane transporter activity [GO:0005375]",1
+"cyclin binding [GO:0030332]",1
+"cyclin-dependent protein serine/threonine kinase activity [GO:0004693]",1
+"enzyme inhibitor activity [GO:0004857]",1
+"glycosyltransferase activity [GO:0016757]",1
+"hydrolase activity, hydrolyzing O-glycosyl compounds [GO:0004553]",1
+"inorganic phosphate transmembrane transporter activity [GO:0005315]",1
+"kinase activity [GO:0016301]",1
+"lactoperoxidase activity [GO:0140825]",1
+"methyl indole-3-acetate esterase activity [GO:0080030]",1
+"methyl jasmonate esterase activity [GO:0080032]",1
+"mRNA cap binding [GO:0098808]",1
+"oxidoreductase activity, acting on paired donors, with oxidation of a pair of donors resulting in the reduction of molecular oxygen to two molecules of water [GO:0016717]",1
+"oxygen binding [GO:0019825]",1
+"oxygen carrier activity [GO:0005344]",1
+"pectinesterase activity [GO:0030599]",1
+"peroxidase activity [GO:0004601]",1
+"phenethylamine:oxygen oxidoreductase (deaminating) activity [GO:0052596]",1
+"phosphotransferase activity, alcohol group as acceptor [GO:0016773]",1
+"quinone binding [GO:0048038]",1
+"sequence-specific DNA binding [GO:0043565]",1
+"sucrose:proton symporter activity [GO:0008506]",1
+"transcription cis-regulatory region binding [GO:0000976]",1
+"translation initiation factor activity [GO:0003743]",1
+"tryptamine:oxygen oxidoreductase (deaminating) activity [GO:0052593]",1

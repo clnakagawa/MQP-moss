@@ -1,0 +1,56 @@
+"a","Freq"
+"protein phosphorylation [GO:0006468]",4
+"regulation of photoperiodism, flowering [GO:2000028]",3
+"carbohydrate metabolic process [GO:0005975]",2
+"hydrogen peroxide catabolic process [GO:0042744]",2
+"protein glycosylation [GO:0006486]",2
+"regulation of DNA-templated transcription [GO:0006355]",2
+"response to oxidative stress [GO:0006979]",2
+"starch biosynthetic process [GO:0019252]",2
+"tricarboxylic acid cycle [GO:0006099]",2
+"abscisic acid-activated signaling pathway [GO:0009738]",1
+"amine metabolic process [GO:0009308]",1
+"amino acid biosynthetic process [GO:0008652]",1
+"amino acid metabolic process [GO:0006520]",1
+"anaphase-promoting complex-dependent catabolic process [GO:0031145]",1
+"aromatic amino acid family biosynthetic process [GO:0009073]",1
+"carbon fixation [GO:0015977]",1
+"carboxylic acid metabolic process [GO:0019752]",1
+"cell wall modification [GO:0042545]",1
+"cell wall organization [GO:0071555]",1
+"cellulose catabolic process [GO:0030245]",1
+"defense response [GO:0006952]",1
+"epigenetic regulation of gene expression [GO:0040029]",1
+"ethylene-activated signaling pathway [GO:0009873]",1
+"fatty acid biosynthetic process [GO:0006633]",1
+"fatty acid metabolic process [GO:0006631]",1
+"glutamine metabolic process [GO:0006541]",1
+"glutathione catabolic process [GO:0006751]",1
+"glycogen biosynthetic process [GO:0005978]",1
+"inositol catabolic process [GO:0019310]",1
+"intracellular copper ion homeostasis [GO:0006878]",1
+"L-ascorbic acid biosynthetic process [GO:0019853]",1
+"lipid metabolic process [GO:0006629]",1
+"methylation [GO:0032259]",1
+"NAD salvage [GO:0034355]",1
+"nitrate assimilation [GO:0042128]",1
+"organonitrogen compound metabolic process [GO:1901564]",1
+"pectin catabolic process [GO:0045490]",1
+"phosphate ion transport [GO:0006817]",1
+"photorespiration [GO:0009853]",1
+"positive regulation of anaphase-promoting complex-dependent catabolic process [GO:1905786]",1
+"positive regulation of DNA-templated transcription [GO:0045893]",1
+"protein dephosphorylation [GO:0006470]",1
+"proton transmembrane transport [GO:1902600]",1
+"reductive pentose-phosphate cycle [GO:0019253]",1
+"regulation of pH [GO:0006885]",1
+"regulation of protein serine/threonine phosphatase activity [GO:0080163]",1
+"response to stress [GO:0006950]",1
+"sesquiterpene biosynthetic process [GO:0051762]",1
+"starch catabolic process [GO:0005983]",1
+"sucrose metabolic process [GO:0005985]",1
+"superoxide metabolic process [GO:0006801]",1
+"tetrahydrofolylpolyglutamate metabolic process [GO:0046900]",1
+"valine catabolic process [GO:0006574]",1
+"xanthophyll cycle [GO:0010028]",1
+"zinc ion transmembrane transport [GO:0071577]",1

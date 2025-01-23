@@ -1,0 +1,16 @@
+"a","Freq"
+"membrane [GO:0016020]",21
+"nucleus [GO:0005634]",11
+"chloroplast [GO:0009507]",4
+"cytoplasm [GO:0005737]",4
+"plasma membrane [GO:0005886]",4
+"cytosol [GO:0005829]",3
+"Golgi apparatus [GO:0005794]",3
+"extracellular region [GO:0005576]",2
+"amyloplast [GO:0009501]",1
+"anaphase-promoting complex [GO:0005680]",1
+"Cul4-RING E3 ubiquitin ligase complex [GO:0080008]",1
+"endomembrane system [GO:0012505]",1
+"Golgi membrane [GO:0000139]",1
+"plant-type cell wall [GO:0009505]",1
+"vacuole [GO:0005773]",1
