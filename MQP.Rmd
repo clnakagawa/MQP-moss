@@ -1,0 +1,1092 @@
+---
+title: "MQP RNA-seq analysis"
+output: html_notebook
+---
+
+```{r}
+library(DESeq2)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+wt_cts <- read.csv("counts_wt.csv")
+rownames(wt_cts) <- wt_cts$gene
+wt_cts <- subset(wt_cts, select = -c(X, gene))
+head(wt_cts)
+
+ts_cts <- read.csv("counts_ts.csv")
+rownames(ts_cts) <- ts_cts$gene
+ts_cts <- subset(ts_cts, select = -c(X, gene))
+head(ts_cts)
+
+cont_cts <- read.csv("counts_cont.csv")
+rownames(cont_cts) <- cont_cts$gene
+cont_cts <- subset(cont_cts, select = -c(X, gene))
+head(cont_cts)
+
+temp_cts <- read.csv("counts_temp.csv")
+rownames(temp_cts) <- temp_cts$gene
+temp_cts <- subset(temp_cts, select = -c(X, gene))
+head(temp_cts)
+
+cts <- read.csv("counts.csv")
+rownames(cts) <- cts$gene
+cts <- subset(cts, select = -c(X, gene))
+head(cts)
+```
+
+```{r}
+wt_tab <- read.csv("wt_table.csv", row.names=1)
+wt_tab
+
+ts_tab <- read.csv("ts_table.csv", row.names=1)
+ts_tab
+
+cont_tab <- read.csv("cont_table.csv", row.names=1)
+cont_tab
+
+temp_tab <- read.csv("temp_table.csv", row.names=1)
+
+tab <- rbind(wt_tab, ts_tab)
+tab
+```
+```{r}
+smallestGroupSize <- 3
+
+dds_wt <- DESeqDataSetFromMatrix(countData = wt_cts,
+                                 colData = wt_tab,
+                                 design = ~ condition)
+dds_wt
+dds_wt$condition
+
+dds_ts <- DESeqDataSetFromMatrix(countData = ts_cts,
+                                 colData = ts_tab,
+                                 design = ~ condition)
+dds_ts
+dds_ts$condition
+
+dds_cont <- DESeqDataSetFromMatrix(countData = cont_cts,
+                                   colData = cont_tab,
+                                   design = ~ condition)
+
+dds_temp <- DESeqDataSetFromMatrix(countData = temp_cts,
+                                   colData = temp_tab,
+                                   design = ~ condition)
+
+dds <- DESeqDataSetFromMatrix(countData = cts,
+                              colData = tab,
+                              design = ~ condition)
+dds
+```
+
+```{r}
+dds_wt$condition <- factor(dds_wt$condition)
+dds_wt$condition <- relevel(dds_wt$condition, ref="wt")
+dds_wt <- DESeq(dds_wt)
+res_wt <- results(dds_wt)
+res_wt <- res_wt[order(res_wt$log2FoldChange),]
+res_wt
+
+dds_ts$condition <- factor(dds_ts$condition)
+dds_ts$condition <- relevel(dds_ts$condition, ref="ts")
+dds_ts <- DESeq(dds_ts)
+res_ts <- results(dds_ts)
+res_ts <- res_ts[order(res_ts$log2FoldChange),]
+res_ts
+
+dds_cont$condition <- factor(dds_cont$condition)
+dds_cont$condition <- relevel(dds_cont$condition, ref="wt")
+dds_cont <- DESeq(dds_cont)
+res_cont <- results(dds_cont)
+res_cont <- res_cont[order(res_cont$log2FoldChange),]
+res_cont
+
+dds_temp$condition <- factor(dds_temp$condition)
+dds_temp$condition <- relevel(dds_temp$condition, ref="wtHeat")
+dds_temp <- DESeq(dds_temp)
+res_temp <- results(dds_temp)
+res_temp <- res_temp[order(res_temp$log2FoldChange),]
+res_temp
+
+dds <- DESeq(dds)
+```
+
+```{r}
+lfcs_wt <- lfcShrink(dds_wt, coef=paste("condition_wtHeat_vs_wt", sep=""), type="apeglm")
+lfcs_wt <- lfcs_wt[order(lfcs_wt$log2FoldChange),]
+lfcs_wt
+
+lfcs_ts <- lfcShrink(dds_ts, coef=paste("condition_tsHeat_vs_ts", sep=""), type="apeglm")
+lfcs_ts <- lfcs_ts[order(lfcs_ts$log2FoldChange),]
+lfcs_ts
+
+
+lfcs_cont <- lfcShrink(dds_cont, coef=paste("condition_ts_vs_wt", sep=""), type="apeglm")
+lfcs_cont <- lfcs_cont[order(lfcs_cont$log2FoldChange),]
+lfcs_cont
+
+lfcs_temp <- lfcShrink(dds_temp, coef=paste("condition_tsHeat_vs_wtHeat", sep=""), type="apeglm")
+lfcs_temp <- lfcs_temp[order(lfcs_temp$log2FoldChange),]
+lfcs_temp
+```
+
+```{r}
+alpha <- 0.05
+
+cols <- densCols(lfcs_wt$log2FoldChange, -log10(lfcs_wt$padj))
+cols[lfcs_wt$pvalue ==0] <- "purple"
+lfcs_wt$pch <- 19
+lfcs_wt$pch[lfcs_wt$pvalue ==0] <- 6
+
+png("results_graphs/FIG1/wt_volcano.png")
+plot(lfcs_wt$log2FoldChange,
+     -log10(lfcs_wt$padj),
+     col=cols, panel.first=grid(),
+     main="WT at 32 C vs 20 C",
+     xlab="Effect size: log2(fold-change)",
+     ylab="-log10(adjusted p-value)",
+     xlim=c(-6,6),
+     ylim=c(0,100),
+     pch=lfcs_wt$pch, cex=0.4)
+abline(v=0)
+abline(v=c(-1,1), col="brown")
+abline(h=-log10(alpha), col="brown")
+dev.off()
+
+cols <- densCols(lfcs_ts$log2FoldChange, -log10(lfcs_ts$padj))
+cols[lfcs_ts$pvalue ==0] <- "purple"
+lfcs_ts$pch <- 19
+lfcs_ts$pch[lfcs_ts$pvalue ==0] <- 6
+
+png("results_graphs/FIG1/ts_volcano.png")
+plot(lfcs_ts$log2FoldChange,
+     -log10(lfcs_ts$padj),
+     col=cols, panel.first=grid(),
+     main="TS at 32 C vs 20 C",
+     xlab="Effect size: log2(fold-change)",
+     ylab="-log10(adjusted p-value)",
+     xlim=c(-6,6),
+     ylim=c(0,100),
+     pch=lfcs_ts$pch, cex=0.4)
+abline(v=0)
+abline(v=c(-1,1), col="brown")
+abline(h=-log10(alpha), col="brown")
+dev.off()
+
+cols <- densCols(lfcs_cont$log2FoldChange, -log10(lfcs_cont$padj))
+cols[lfcs_cont$pvalue ==0] <- "purple"
+lfcs_cont$pch <- 19
+lfcs_cont$pch[lfcs_cont$pvalue ==0] <- 6
+
+png("results_graphs/FIG1/cont_volcano.png")
+plot(lfcs_cont$log2FoldChange,
+     -log10(lfcs_cont$padj),
+     col=cols, panel.first=grid(),
+     main="TS vs WT at 20 C",
+     xlab="Effect size: log2(fold-change)",
+     ylab="-log10(adjusted p-value)",
+     xlim=c(-6,6),
+     ylim=c(0,100),
+     pch=lfcs_cont$pch, cex=0.4)
+abline(v=0)
+abline(v=c(-1,1), col="brown")
+abline(h=-log10(alpha), col="brown")
+dev.off()
+
+cols <- densCols(lfcs_temp$log2FoldChange, -log10(lfcs_temp$padj))
+cols[lfcs_temp$pvalue ==0] <- "purple"
+lfcs_temp$pch <- 19
+lfcs_temp$pch[lfcs_temp$pvalue ==0] <- 6
+
+png("results_graphs/FIG1/temp_volcano.png")
+plot(lfcs_temp$log2FoldChange,
+     -log10(lfcs_temp$padj),
+     col=cols, panel.first=grid(),
+     main="TS vs WT at 32 C",
+     xlab="Effect size: log2(fold-change)",
+     ylab="-log10(adjusted p-value)",
+     xlim=c(-6,6),
+     ylim=c(0,100),
+     pch=lfcs_temp$pch, cex=0.4)
+abline(v=0)
+abline(v=c(-1,1), col="brown")
+abline(h=-log10(alpha), col="brown")
+dev.off()
+```
+
+```{r}
+png("results_graphs/FIG2/ma_wt.png")
+plotMA(lfcs_wt, main="WT 32 C vs WT 20 C", ylim=c(-5, 5))
+dev.off()
+png("results_graphs/FIG2/ma_ts.png")
+plotMA(lfcs_ts, main="TS 32 C vs TS 20 C", ylim=c(-5, 5))
+dev.off()
+png("results_graphs/FIG2/ma_cont.png")
+plotMA(lfcs_cont, main="TS 20 C vs WT 20 C", ylim=c(-5, 5))
+dev.off()
+png("results_graphs/FIG2/ma_temp.png")
+plotMA(lfcs_temp, main="TS 32 C vs WT 32 C", ylim=c(-5, 5))
+dev.off()
+```
+
+```{r}
+
+plt <- plotPCA(vst(dds))
+print(plt)
+
+```
+
+```{r}
+# filter by up/down for each category
+lfcs_wt <- na.omit(lfcs_wt)
+lfcs_ts <- na.omit(lfcs_ts)
+lfcs_cont <- na.omit(lfcs_cont)
+lfcs_temp <- na.omit(lfcs_temp)
+
+lfcCutoff <- 2
+
+wt_up <- lfcs_wt[lfcs_wt$log2FoldChange > lfcCutoff,]
+wt_up
+wt_dn <- lfcs_wt[lfcs_wt$log2FoldChange < -1*lfcCutoff,]
+wt_dn
+
+ts_up <- lfcs_ts[lfcs_ts$log2FoldChange > lfcCutoff,]
+ts_up
+ts_dn <- lfcs_ts[lfcs_ts$log2FoldChange < -1*lfcCutoff,]
+ts_dn
+
+cont_up <- lfcs_cont[lfcs_cont$log2FoldChange > lfcCutoff,]
+cont_up
+cont_dn <- lfcs_cont[lfcs_cont$log2FoldChange < -1*lfcCutoff,]
+cont_dn
+
+temp_up <- lfcs_temp[lfcs_temp$log2FoldChange > lfcCutoff,]
+temp_up
+temp_dn <- lfcs_temp[lfcs_temp$log2FoldChange < -1*lfcCutoff,]
+temp_dn
+```
+
+```{r, warning=F}
+library(VennDiagram)
+length(rownames(wt_up))
+length(rownames(wt_dn))
+length(rownames(ts_up))
+length(rownames(ts_dn))
+venn.diagram(x=list(rownames(wt_up),rownames(ts_up)), category.names=c("WT","TS"),filename="plots/venn/temp_UP.png",output=T)
+venn.diagram(x=list(rownames(wt_dn),rownames(ts_dn)), category.names=c("WT","TS"),filename="plots/venn/temp_DN.png",output=T)
+
+length(rownames(cont_up))
+length(rownames(cont_dn))
+length(rownames(temp_up))
+length(rownames(temp_dn))
+venn.diagram(x=list(rownames(cont_up),rownames(temp_up)), category.names=c("20C","32C"),filename="plots/venn/type_UP.png",output=T)
+venn.diagram(x=list(rownames(cont_dn),rownames(temp_dn)), category.names=c("20C","32C"),filename="plots/venn/type_DN.png",output=T)
+```
+
+```{r, warning=F}
+anns <- read.table("phypa_anns.tsv", sep = '\t', header=T, quote="")
+head(anns, 40)
+```
+```{r, warning=F}
+# combine expression data
+glist <- list(row.names(lfcs_wt), row.names(lfcs_ts), row.names(lfcs_cont), row.names(lfcs_temp))
+glist <- Reduce(union, glist)
+glist
+
+exp_all <- merge(as.data.frame(lfcs_wt[2]),as.data.frame(lfcs_ts[2]),by='row.names',all=TRUE)
+rownames(exp_all) <- exp_all$Row.names
+exp_all <- exp_all[-c(1)]
+exp_all <- merge(exp_all, as.data.frame(lfcs_cont[2]),by='row.names',all=TRUE)
+rownames(exp_all) <- exp_all$Row.names
+exp_all <- exp_all[-c(1)]
+exp_all <- merge(exp_all, as.data.frame(lfcs_temp[2]),by='row.names',all=TRUE)
+rownames(exp_all) <- exp_all$Row.names
+exp_all <- exp_all[-c(1)]
+colnames(exp_all) <- c('WT 32C vs WT 20C',
+                       'TS 32C vs TS 20C',
+                       'TS 20C vs WT 20C',
+                       'TS 32C vs WT 32C')
+exp_all
+```
+
+```{r}
+exp_all_p <- merge(as.data.frame(lfcs_wt[c(1,2,5)]),as.data.frame(lfcs_ts[c(1,2,5)]),by='row.names',all=TRUE)
+rownames(exp_all_p) <- exp_all_p$Row.names
+exp_all_p <- exp_all_p[-c(1)]
+exp_all_p <- merge(exp_all_p, as.data.frame(lfcs_cont[c(1,2,5)]),by='row.names',all=TRUE)
+rownames(exp_all_p) <- exp_all_p$Row.names
+exp_all_p <- exp_all_p[-c(1)]
+exp_all_p <- merge(exp_all_p, as.data.frame(lfcs_temp[c(1,2,5)]),by='row.names',all=TRUE)
+rownames(exp_all_p) <- exp_all_p$Row.names
+exp_all_p <- exp_all_p[-c(1)]
+
+colnames(exp_all_p) <- c('WT 32C vs WT 20C (mean)','WT 32C vs WT 20C (lfc)','WT 32C vs WT 20C (padj)', 
+                       'TS 32C vs TS 20C (mean)','TS 32C vs TS 20C (lfc)','TS 32C vs TS 20C (padj)',
+                       'TS 20C vs WT 20C (mean)','TS 20C vs WT 20C (lfc)','TS 20C vs WT 20C (padj)',
+                       'TS 32C vs WT 32C (mean)','TS 32C vs WT 32C (lfc)','TS 32C vs WT 32C (padj)')
+
+
+```
+```{r}
+# LFC cutoff of 1
+# PHYPA_017613
+# endo/exo
+# stomata opening/closing
+# set cutoff for 1 but for only 32C vs 32C 
+# ct cutoff of 50
+condition <- apply(exp_all, 1, function(row) any(abs(row) > 1))
+exp_all_deg <- exp_all[condition,]
+exp_all_deg <- exp_all_deg[rowSums(!is.na(exp_all_deg)) > 0,]
+exp_temp_deg <- exp_all_deg[abs(exp_all_deg$`TS 32C vs WT 32C`) > 1,]
+
+cts_filter <- cts[rowSums(cts > 50) > 3,]
+exp_all_deg <- exp_all_deg[intersect(rownames(exp_all_deg), rownames(cts_filter)),]
+exp_temp_deg <- exp_temp_deg[intersect(rownames(exp_temp_deg), rownames(cts_filter)),]
+condition <- apply(exp_all_deg, 1, function(row) any(row > 1))
+exp_all_up <- exp_all_deg[condition,]
+exp_temp_up <- exp_temp_deg[exp_temp_deg$`TS 32C vs WT 32C` > 1,]
+condition <- apply(exp_all_deg, 1, function(row) any(row < -1))
+exp_all_dn <- exp_all_deg[condition,]
+exp_temp_dn <- exp_temp_deg[exp_temp_deg$`TS 32C vs WT 32C` < -1,]
+
+```
+```{r}
+library(tidyr)
+library(dplyr)
+refid <- read.csv("ID_ref.csv", header = F)
+allID <- merge(refid, anns, by.x="V1", by.y="Entry")
+anns_sep <- anns[-5] %>% separate_rows(Gene.Names, sep = ' ') 
+anns_sep <- anns_sep %>% filter(grepl("PHYPA", Gene.Names))
+anns_sep <- merge(anns_sep, refid, by.x="Entry", by.y="V1", all.x=T)
+anns_sep <- merge(anns_sep, exp_all_p, by.x="Gene.Names", by.y=0)
+anns_sep <- distinct(anns_sep[,c(1,2,9,10,3,4,5,6,7,8,11,12,13,14,15,16,17,18,19,20,21,22)])
+names(anns_sep)[names(anns_sep) == 'V2'] <- 'phytoID'
+names(anns_sep)[names(anns_sep) == 'V3'] <- 'phytoAnnotation'
+write.csv(anns_sep, "MQP_data.csv", row.names=FALSE)
+
+ann_sep_sig <- anns_sep[anns_sep$Gene.Names %in% rownames(exp_all_deg),]
+ann_sep_sig_down <- ann_sep_sig[ann_sep_sig$`TS 32C vs WT 32C (lfc)` < -1,]
+write.csv(ann_sep_sig_down, "MQP_data_DEG_dn.csv", row.names=FALSE) 
+ann_sep_sig_up <- ann_sep_sig[ann_sep_sig$`TS 32C vs WT 32C (lfc)` > 1,]
+write.csv(ann_sep_sig_up, "MQP_data_DEG_up.csv", row.names=FALSE) 
+
+ann_sep_sig <- anns_sep[anns_sep$Gene.Names %in% rownames(exp_all_deg),]
+ann_sep_sig_down <- ann_sep_sig[ann_sep_sig$`TS 20C vs WT 20C (lfc)` < -1,]
+write.csv(ann_sep_sig_down, "MQP_data_DEG_dn(TSvsWT20C).csv", row.names=FALSE) 
+ann_sep_sig_up <- ann_sep_sig[ann_sep_sig$`TS 20C vs WT 20C (lfc)` > 1,]
+write.csv(ann_sep_sig_up, "MQP_data_DEG_up(TSvsWT20C).csv", row.names=FALSE) 
+
+ann_sep_sig <- anns_sep[anns_sep$Gene.Names %in% rownames(exp_all_deg),]
+ann_sep_sig_down <- ann_sep_sig[ann_sep_sig$`TS 32C vs TS 20C (lfc)` < -1,]
+write.csv(ann_sep_sig_down, "MQP_data_DEG_dn(TS32CvsTS20C).csv", row.names=FALSE) 
+ann_sep_sig_up <- ann_sep_sig[ann_sep_sig$`TS 32C vs TS 20C (lfc)` > 1,]
+write.csv(ann_sep_sig_up, "MQP_data_DEG_up(TS32CvsTS20C).csv", row.names=FALSE) 
+
+ann_sep_sig <- anns_sep[anns_sep$Gene.Names %in% rownames(exp_all_deg),]
+ann_sep_sig_down <- ann_sep_sig[ann_sep_sig$`WT 32C vs WT 20C (lfc)` < -1,]
+write.csv(ann_sep_sig_down, "MQP_data_DEG_dn(WT32CvsWT20C).csv", row.names=FALSE) 
+ann_sep_sig_up <- ann_sep_sig[ann_sep_sig$`WT 32C vs WT 20C (lfc)` > 1,]
+write.csv(ann_sep_sig_up, "MQP_data_DEG_up(WT32CvsWT20C).csv", row.names=FALSE) 
+```
+
+```{r, warning=F}
+wt_up_ann <- anns[anns$Gene.Names..ORF. %in% rownames(wt_up),]
+wt_dn_ann <- anns[anns$Gene.Names..ORF. %in% rownames(wt_dn),]
+ts_up_ann <- anns[anns$Gene.Names..ORF. %in% rownames(ts_up),]
+ts_dn_ann <- anns[anns$Gene.Names..ORF. %in% rownames(ts_dn),]
+
+wt_ann <- anns[anns$Gene.Names..ORF. %in% union(rownames(wt_up), rownames(wt_dn)),]
+ts_ann <- anns[anns$Gene.Names..ORF. %in% union(rownames(ts_up), rownames(ts_dn)),]
+
+temp_up_ann <- anns[anns$Gene.Names..ORF. %in% rownames(temp_up),]
+temp_dn_ann <- anns[anns$Gene.Names..ORF. %in% rownames(temp_dn),]
+cont_up_ann <- anns[anns$Gene.Names..ORF. %in% rownames(cont_up),]
+cont_dn_ann <- anns[anns$Gene.Names..ORF. %in% rownames(cont_dn),]
+
+cont_ann <- anns[anns$Gene.Names..ORF. %in% union(rownames(cont_up), rownames(cont_dn)),]
+temp_ann <- anns[anns$Gene.Names..ORF. %in% union(rownames(temp_up), rownames(temp_dn)),]
+```
+
+```{r, warning=F}
+ct_GO <- function(anndf, ctg) {
+  a <- c()
+  if (ctg == "component"){
+    for (x in anndf$Gene.Ontology..cellular.component.){
+      a <- c(a, strsplit(x, "; ")[[1]])
+    }
+  }
+  else if (ctg == "process"){
+    for (x in anndf$Gene.Ontology..biological.process.){
+      a <- c(a, strsplit(x, "; ")[[1]])
+    }
+  }
+  else if (ctg == "function"){
+    for (x in anndf$Gene.Ontology..molecular.function.){
+      a <- c(a, strsplit(x, "; ")[[1]])
+    }  
+  }
+  df <- as.data.frame(table(a))
+  df <- df[order(df$Freq, decreasing=T),]
+  return(df)
+}
+```
+
+```{r, warning=F}
+write.csv(ct_GO(wt_up_ann, "component"), 'go_anns/wt_up_component.csv', row.names=F)
+write.csv(ct_GO(wt_dn_ann, "component"), 'go_anns/wt_dn_component.csv', row.names=F)
+write.csv(ct_GO(ts_up_ann, "component"), 'go_anns/ts_up_component.csv', row.names=F)
+write.csv(ct_GO(ts_dn_ann, "component"), 'go_anns/ts_dn_component.csv', row.names=F)
+
+write.csv(ct_GO(cont_up_ann, "component"), 'go_anns/cont_up_component.csv', row.names=F)
+write.csv(ct_GO(cont_dn_ann, "component"), 'go_anns/cont_dn_component.csv', row.names=F)
+write.csv(ct_GO(temp_up_ann, "component"), 'go_anns/temp_up_component.csv', row.names=F)
+write.csv(ct_GO(temp_dn_ann, "component"), 'go_anns/temp_dn_component.csv', row.names=F)
+```
+
+```{r, warning=F}
+write.csv(ct_GO(wt_up_ann, "process"), 'go_anns/wt_up_process.csv', row.names=F)
+write.csv(ct_GO(wt_dn_ann, "process"), 'go_anns/wt_dn_process.csv', row.names=F)
+write.csv(ct_GO(ts_up_ann, "process"), 'go_anns/ts_up_process.csv', row.names=F)
+write.csv(ct_GO(ts_dn_ann, "process"), 'go_anns/ts_dn_process.csv', row.names=F)
+
+write.csv(ct_GO(cont_up_ann, "process"), 'go_anns/cont_up_process.csv', row.names=F)
+write.csv(ct_GO(cont_dn_ann, "process"), 'go_anns/cont_dn_process.csv', row.names=F)
+write.csv(ct_GO(temp_up_ann, "process"), 'go_anns/temp_up_process.csv', row.names=F)
+write.csv(ct_GO(temp_dn_ann, "process"), 'go_anns/temp_dn_process.csv', row.names=F)
+```
+
+```{r, warning=F}
+write.csv(ct_GO(wt_up_ann, "function"), 'go_anns/wt_up_function.csv', row.names=F)
+write.csv(ct_GO(wt_dn_ann, "function"), 'go_anns/wt_dn_function.csv', row.names=F)
+write.csv(ct_GO(ts_up_ann, "function"), 'go_anns/ts_up_function.csv', row.names=F)
+write.csv(ct_GO(ts_dn_ann, "function"), 'go_anns/ts_dn_function.csv', row.names=F)
+
+write.csv(ct_GO(cont_up_ann, "function"), 'go_anns/cont_up_function.csv', row.names=F)
+write.csv(ct_GO(cont_dn_ann, "function"), 'go_anns/cont_dn_function.csv', row.names=F)
+write.csv(ct_GO(temp_up_ann, "function"), 'go_anns/temp_up_function.csv', row.names=F)
+write.csv(ct_GO(temp_dn_ann, "function"), 'go_anns/temp_dn_function.csv', row.names=F)
+```
+```{r,warning=F}
+#make go term data
+godf <- data.frame(anns$Gene.Ontology.IDs, anns$Gene.Names..ORF.)
+colnames(godf) <- c("GO", "name") 
+
+geneForGO <- function(term) {
+  return(dplyr::filter(testdf, grepl(term, GO))$name)
+}
+
+allGO <- unique(strsplit(paste(anns$Gene.Ontology.IDs, collapse=";"), ';'))
+
+#test <- lapply(allGO[[1]], geneForGO)
+```
+
+
+
+
+
+```{r, warning=F}
+library(dplyr)
+library(pheatmap)
+# function to display heatmap of genes based on GO term
+# endo/exocytosis
+# Rab
+# GTD-binding (myosin-related) Zein-binding RISAP
+# one with all data
+# two with filtered data (50 ct or more, p value < 0.05, lfc > 1 in at least 1 condition, over/under expressed)
+
+mapGO <- function(df1, df2, anndf, term) {
+  anns <- dplyr::filter(anndf, grepl(term, Gene.Ontology..GO.))
+  if (dim(anns)[1] != 0){
+  names <- strsplit(paste(anns$Gene.Names..ORF., collapse=' ', sep=' '), ' ')[[1]]
+  cond1 <- strsplit(mcols(df1)[2,2], "condition ")[[1]][2]
+  cond2 <- strsplit(mcols(df2)[2,2], "condition ")[[1]][2]
+  df1 <- as.data.frame(df1[intersect(rownames(df1),names),][,2,drop=F])
+  df2 <- as.data.frame(df2[intersect(rownames(df2),names),][,2,drop=F])
+  print("hello")
+  colnames(df1) <- c(cond1)
+  colnames(df2) <- c(cond2)
+  df <- merge(df1, df2, by='row.names')
+  rownames(df) = df$Row.names
+  df <- df[,c(2,3)]
+  print(df)
+  pheatmap(as.matrix(df), 
+           display_numbers = T, 
+           breaks = seq(from = -6, to = 6, length = 101),
+           cluster_col = F,
+           cluster_row = F,
+           angle_col = 45)
+  }
+}
+```
+
+```{r}
+#combine all GO Terms
+allGO <- rbind(func_df, comp_df, proc_df)
+
+goGenes <- function(goid) {
+  return(allGO[grep(goid, allGO$GO_Terms),]$Genes[[1]])
+} 
+```
+```{r}
+# standard function for heatmap figures
+# input should always have PHYPA_XXXXXXXX row name format
+
+
+
+figmap <- function(mapdf, fname, lbls = rownames(mapdf)) {
+  mapdf$tempname <- lbls
+  mapdf <- mapdf[rowSums(is.na(mapdf)) < 1,]
+  print(mapdf)
+  rownames(mapdf) <- mapdf$tempname
+  mapdf <- mapdf[c(1,2,3,4)]
+  png(paste("results_graphs/", fname, ".png", sep=''), 960, 1600)
+  pheatmap(mapdf,
+           display_numbers = T,
+           breaks = seq(from = -6, to = 6, length. = 101),
+           cluster_col = F,
+           cluster_row = F,
+           cellwidth = 50,
+           cellheight = 30,
+           fontsize = 12,
+           main = gsub("_", " ", fname),
+           angle_col = 45)
+  dev.off()
+  toWrite <- anns_sep[sapply(strsplit(anns_sep$phytoID, " "), function(ids) any(ids %in% rownames(mapdf))), ]
+  print(toWrite)
+  rownames(toWrite) <- toWrite$phytoID
+  print(toWrite)
+  print(rownames(mapdf))
+  toWrite <- toWrite[rownames(mapdf),]
+  write.csv(toWrite,
+            paste("results_graphs/tables/", fname, ".csv"))
+}
+
+# useful templates
+# figmap(exp_all[goGenes(goID),])
+# figmap(exp_all_deg[goGenes(goID),])
+# figmap(head(exp_all[order(exp_all$`WT 32C vs WT 20C`),], 10))
+# 50 count cutoff
+get_matching_ids <- function(gene_list) {
+  # Find the row indices for the matching gene_list in Format1
+  matched_indices <- which(anns_sep$Gene.Names %in% gene_list)
+  
+  # Retrieve the corresponding IDs from Format2
+  matched_ids_format2 <- anns_sep$phytoID[matched_indices]
+  
+  # Order the matched IDs based on the order of gene_list
+  ordered_matched_ids <- matched_ids_format2[match(gene_list, anns_sep$Gene.Names[matched_indices])]
+  
+  return(ordered_matched_ids)
+}
+
+dfToMap <- head(exp_all_deg[order(-exp_all_deg$`TS 32C vs WT 32C`),], 10)
+figmap(dfToMap, "Top_10_Upregulated", get_matching_ids(rownames(dfToMap)))
+
+dfToMap <- head(exp_all_deg[order(-exp_all_deg$`TS 20C vs WT 20C`),], 10)
+figmap(dfToMap, "Top_10_Upregulated20C", get_matching_ids(rownames(dfToMap)))
+
+dfToMap <- head(exp_all_deg[order(exp_all_deg$`TS 32C vs WT 32C`),], 10)
+figmap(dfToMap, "Top_10_Downregulated", get_matching_ids(rownames(dfToMap)))
+
+dfToMap <- head(exp_all_deg[order(exp_all_deg$`TS 20C vs WT 20C`),], 10)
+figmap(dfToMap, "Top_10_Downregulated20C", get_matching_ids(rownames(dfToMap)))
+
+dfToMap <- exp_all[intersect(goGenes("GO:0034605"), rownames(exp_all_deg)),]
+figmap(dfToMap, "cellular_response_to_heat", get_matching_ids(rownames(dfToMap)))
+       
+dfToMap <- exp_all_deg[intersect(goGenes("GO:0009408"), rownames(exp_all_deg)),]
+figmap(dfToMap, "response_to_heat", get_matching_ids(rownames(dfToMap)))
+
+dfToMap <- exp_all[intersect(goGenes("GO:0006897"), rownames(exp_all_deg)),]
+figmap(dfToMap, "endocytosis", get_matching_ids(rownames(dfToMap)))
+
+dfToMap <- exp_all[intersect(goGenes("GO:0080115"), rownames(exp_all_deg)),]
+figmap(dfToMap, "myosin_XI_tail_binding", get_matching_ids(rownames(dfToMap)))
+
+dfToMap <- exp_all_deg[intersect(goGenes("GO:0006457"), rownames(exp_all_deg)),]
+figmap(dfToMap, "protein_folding", get_matching_ids(rownames(dfToMap)))
+
+dfToMap <- exp_all_deg[intersect(goGenes("GO:0042542"), rownames(exp_all_deg)),]
+figmap(dfToMap, "response_to_peroxide", get_matching_ids(rownames(dfToMap)))
+
+dfToMap <- exp_all_deg[intersect(goGenes("GO:0009651"), rownames(exp_all_deg)),]
+figmap(dfToMap, "response_to_salt_stress", get_matching_ids(rownames(dfToMap)))
+
+dfToMap <- exp_all_deg[intersect(goGenes("GO:0051085"), rownames(exp_all_deg)),]
+figmap(dfToMap, "chaperone_cofactor-dependent_protein_refolding", get_matching_ids(rownames(dfToMap)))
+
+dfToMap <- exp_all_deg[intersect(goGenes("GO:0009653"), rownames(exp_all_deg)),]
+figmap(dfToMap, "anatomical_structure_morphogenesis", get_matching_ids(rownames(dfToMap)))
+
+dfToMap <- exp_all_deg[intersect(goGenes("GO:0000145"), rownames(exp_all_deg)),]
+figmap(dfToMap, "exocyst", get_matching_ids(rownames(dfToMap)))
+
+exp_deg <- exp_all[]
+
+dfToMap <- exp_all[intersect(goGenes("GO:0009653"), rownames(exp_all_p)),]
+figmap(dfToMap, "expansins", get_matching_ids(rownames(dfToMap)))
+
+pattern <- "sec[0-9]"
+
+
+plotTableAll <- function(goID, fname) {
+  dfToMap <- exp_all_deg[intersect(goGenes(goID), rownames(exp_all_deg)),]
+  dfToMap <- dfToMap[abs(dfToMap$`TS 32C vs WT 32C`) > 1,]
+  figmap(dfToMap, gsub(" ", "_", fname), get_matching_ids(rownames(dfToMap)))
+}
+
+IDlist <- c("GO:0044183", "GO:0140662", "GO:0016887", "GO:0004097", "GO:0015979",
+            "GO:0030955","GO:0004743", "GO:0016301", "GO:0000287")
+fnamelist <- c("protein folding chaperone", "ATP-dependent protein folding chaperone",
+               "ATP hydrolysis activity", "catechol oxidase activity", "photosynthesis",
+               "potassium ion binding", "pyruvate kinase activity", "kinase activity", "magnesium ion binding")
+
+IDlist <- c("GO:0030955","GO:0004743", "GO:0016301", "GO:0000287")
+fnamelist <- c("potassium ion binding", "pyruvate kinase activity", "kinase activity", "magnesium ion binding")
+
+IDlist <- c("GO:0006979", "GO:0042744", "GO:0006952", "GO:0019253")
+fnamelist <- c("response to oxidative stress", "hydrogen peroxide catabolic process", "defense response", "reductive pentose-phosphate cycle")
+
+IDlist <- c("GO:0004097", "GO:0044183", "GO:0140662", "GO:0016887",
+            "GO:0006952", "GO:0006979", "GO:0019253")
+fnamelist <- c("catechol oxidase activity", "protein folding chaperone", "ATP-dependent protein folding chaperone",
+               "ATP hydrolysis activity", "defense response", "response to oxidative stress",
+               "reductive pentose-phosphate cycle")
+
+for (i in 1:length(IDlist)) {
+  plotTableAll(IDlist[i], fnamelist[i])
+}
+
+png("expAllFilter.png", width = 960, height = 4800)
+pheatmap(exp_all_deg,
+         breaks = seq(from = -6, to = 6, length. = 101),
+         show_rownames = F,
+         cellwidth = 80,
+         cellheight = 1,
+         cluster_col = F,
+         cluster_row = F,
+         fontsize = 40)
+dev.off()
+# PHYPA_006542 uunfolded protein binding
+# PHYPA_029681 protein folding chaperone
+# "PHYPA_024107" "PHYPA_005006" "PHYPA_002127" "PHYPA_016522" ATP-dependent protein folding chaperone
+# "PHYPA_006670" "PHYPA_006542" protein folding chaperone binding
+# GO:0016887 ATP hydrolysis activity
+# "PHYPA_026218" catechol oxidase activity
+```
+```{r}
+rows_with_string <- function(df, search_string) {
+  apply(df, 1, function(row) any(grepl(search_string, row, fixed = TRUE)))
+}
+
+
+
+```
+
+
+
+
+
+```{r}
+allGO_deg <- allGO[sapply(allGO$Genes, function(ids) any(ids %in% rownames(exp_all_deg))), ]
+allGO_dn <- allGO[sapply(allGO$Genes, function(ids) any(ids %in% rownames(exp_all_dn))), ]
+allGO_up <- allGO[sapply(allGO$Genes, function(ids) any(ids %in% rownames(exp_all_up))), ]
+
+compGO_deg <- allGO_deg[allGO_deg$GO_Terms %in% intersect(allGO_deg$GO_Terms, comp_df$GO_Terms),]
+compGO_dn <- allGO_dn[allGO_dn$GO_Terms %in% intersect(allGO_dn$GO_Terms, comp_df$GO_Terms),]
+compGO_up <- allGO_up[allGO_up$GO_Terms %in% intersect(allGO_up$GO_Terms, comp_df$GO_Terms),]
+funcGO_deg <- allGO_deg[allGO_deg$GO_Terms %in% intersect(allGO_deg$GO_Terms, func_df$GO_Terms),]
+funcGO_dn <- allGO_dn[allGO_dn$GO_Terms %in% intersect(allGO_dn$GO_Terms, func_df$GO_Terms),]
+funcGO_up <- allGO_up[allGO_up$GO_Terms %in% intersect(allGO_up$GO_Terms, func_df$GO_Terms),]
+procGO_deg <- allGO_deg[allGO_deg$GO_Terms %in% intersect(allGO_deg$GO_Terms, proc_df$GO_Terms),]
+procGO_dn <- allGO_dn[allGO_dn$GO_Terms %in% intersect(allGO_dn$GO_Terms, proc_df$GO_Terms),]
+procGO_up <- allGO_up[allGO_up$GO_Terms %in% intersect(allGO_up$GO_Terms, proc_df$GO_Terms),]
+
+tempGO_deg <- allGO[sapply(allGO$Genes, function(ids) any(ids %in% rownames(exp_temp_deg))), ]
+tempGO_dn <- allGO[sapply(allGO$Genes, function(ids) any(ids %in% rownames(exp_temp_dn))), ]
+tempGO_up <- allGO[sapply(allGO$Genes, function(ids) any(ids %in% rownames(exp_temp_up))), ]
+compGO_deg_temp <- tempGO_deg[tempGO_deg$GO_Terms %in% intersect(tempGO_deg$GO_Terms, comp_df$GO_Terms),]
+compGO_dn_temp <- tempGO_dn[tempGO_dn$GO_Terms %in% intersect(tempGO_dn$GO_Terms, comp_df$GO_Terms),]
+compGO_up_temp <- tempGO_up[tempGO_up$GO_Terms %in% intersect(tempGO_up$GO_Terms, comp_df$GO_Terms),]
+funcGO_deg_temp <- tempGO_deg[tempGO_deg$GO_Terms %in% intersect(tempGO_deg$GO_Terms, func_df$GO_Terms),]
+funcGO_dn_temp <- tempGO_dn[tempGO_dn$GO_Terms %in% intersect(tempGO_dn$GO_Terms, func_df$GO_Terms),]
+funcGO_up_temp <- tempGO_up[tempGO_up$GO_Terms %in% intersect(tempGO_up$GO_Terms, func_df$GO_Terms),]
+procGO_deg_temp <- tempGO_deg[tempGO_deg$GO_Terms %in% intersect(tempGO_deg$GO_Terms, proc_df$GO_Terms),]
+procGO_dn_temp <- tempGO_dn[tempGO_dn$GO_Terms %in% intersect(tempGO_dn$GO_Terms, proc_df$GO_Terms),]
+procGO_up_temp <- tempGO_up[tempGO_up$GO_Terms %in% intersect(tempGO_up$GO_Terms, proc_df$GO_Terms),]
+```
+
+```{r, warning=F}
+#plasma membrane
+mapGO(lfcs_wt, lfcs_ts, wt_up_ann, "GO:0005886")
+mapGO(lfcs_wt, lfcs_ts, wt_dn_ann, "GO:0005886")
+mapGO(lfcs_wt, lfcs_ts, ts_up_ann, "GO:0005886")
+mapGO(lfcs_wt, lfcs_ts, ts_dn_ann, "GO:0005886")
+mapGO(lfcs_temp, lfcs_cont, cont_up_ann, "GO:0005886")
+mapGO(lfcs_temp, lfcs_cont, cont_dn_ann, "GO:0005886")
+mapGO(lfcs_temp, lfcs_cont, temp_up_ann, "GO:0005886")
+mapGO(lfcs_temp, lfcs_cont, temp_dn_ann, "GO:0005886")
+
+```
+
+```{r, warning=F}
+#membrane
+mapGO(lfcs_wt, lfcs_ts, wt_up_ann, "GO:0016020")
+mapGO(lfcs_wt, lfcs_ts, wt_dn_ann, "GO:0016020")
+mapGO(lfcs_wt, lfcs_ts, ts_up_ann, "GO:0016020")
+mapGO(lfcs_wt, lfcs_ts, ts_dn_ann, "GO:0016020")
+mapGO(lfcs_temp, lfcs_cont, cont_up_ann, "GO:0016020")
+mapGO(lfcs_temp, lfcs_cont, cont_dn_ann, "GO:0016020")
+mapGO(lfcs_temp, lfcs_cont, temp_up_ann, "GO:0016020")
+mapGO(lfcs_temp, lfcs_cont, temp_dn_ann, "GO:0016020")
+
+```
+
+```{r, warning=F}
+#vacuolar membrane
+mapGO(lfcs_wt, lfcs_ts, wt_up_ann, "GO:0005774")
+mapGO(lfcs_wt, lfcs_ts, wt_dn_ann, "GO:0005774")
+mapGO(lfcs_wt, lfcs_ts, ts_up_ann, "GO:0005774")
+mapGO(lfcs_wt, lfcs_ts, ts_dn_ann, "GO:0005774")
+mapGO(lfcs_temp, lfcs_cont, cont_up_ann, "GO:0005774")
+mapGO(lfcs_temp, lfcs_cont, cont_dn_ann, "GO:0005774")
+mapGO(lfcs_temp, lfcs_cont, temp_up_ann, "GO:0005774")
+mapGO(lfcs_temp, lfcs_cont, temp_dn_ann, "GO:0005774")
+
+```
+
+
+```{r, warning=F}
+#plant-type cell wall
+#free radicals and tip growth
+mapGO(lfcs_wt, lfcs_ts, wt_up_ann, "GO:0009505")
+mapGO(lfcs_wt, lfcs_ts, wt_dn_ann, "GO:0009505")
+mapGO(lfcs_wt, lfcs_ts, ts_up_ann, "GO:0009505")
+mapGO(lfcs_wt, lfcs_ts, ts_dn_ann, "GO:0009505")
+mapGO(lfcs_temp, lfcs_cont, cont_up_ann, "GO:0009505")
+mapGO(lfcs_temp, lfcs_cont, cont_dn_ann, "GO:0009505")
+mapGO(lfcs_temp, lfcs_cont, temp_up_ann, "GO:0009505")
+mapGO(lfcs_temp, lfcs_cont, temp_dn_ann, "GO:0009505")
+
+```
+
+```{r}
+sig_temp <- lfcs_temp[abs(lfcs_temp$log2FoldChange) > 1,]
+png(filename="plots/GO/peroxidase.png")
+mapGO(sig_temp, lfcs_cont, anns, "GO:0004601") #peroxidase activity
+dev.off()
+png(filename="plots/GO/lactoperoxidase.png")
+mapGO(sig_temp, lfcs_cont, anns, "GO:0140825") #lactoperoxidase activity
+dev.off()
+png(filename="plots/GO/oxidative_stress.png")
+mapGO(sig_temp, lfcs_cont, anns, "GO:0006979") #response to oxidative stress
+dev.off()
+png(filename='plots/GO/cyclin.png')
+mapGO(sig_temp, lfcs_cont, anns, "GO:0030332") #cyclin binding
+dev.off()
+png(filename="plots/GO/reg_expression.png")
+mapGO(sig_temp, lfcs_cont, anns, "GO:0010468") #reg gene expression
+dev.off()
+png(filename="plots/GO/organic.png")
+mapGO(sig_temp, lfcs_cont, anns, "GO:0010033") #response to organic substance
+dev.off()
+png(filename="plots/GO/G1_S.png")
+mapGO(sig_temp, lfcs_cont, anns, "GO:0000082") #G1/S
+dev.off()
+png(filename="plots/GO/extracellular.png")
+mapGO(sig_temp, lfcs_cont, anns, "GO:0005576") #extracellular region
+dev.off()
+```
+```{r}
+
+wt <- as.data.frame(lfcs_wt[,2])
+ts <- as.data.frame(lfcs_ts[,2])
+cont <- as.data.frame(lfcs_cont[,2])
+temp <- as.data.frame(lfcs_temp[,2])
+
+print(head(cont))
+df1 <- merge(wt, ts, by="row.names")
+df2 <- merge(cont, temp, by="row.names")
+df <- merge(df1, df2, by="Row.names")
+rownames(df) <- df$Row.names
+df <- df[,2:5]
+colnames(df) <- c("TS", "WT", "20C", "32C")
+df <- df %>% filter_all(any_vars(abs(.) > 1))
+print(head(df))
+png(filename="heatmaps/heatmap_all.png", width=480, height=1000)
+pheatmap(df, 
+         treeheight_row = 0,
+         treeheight_col = 0,
+         cellwidth = 60,
+         cellheight = 0.5,
+         breaks = seq(from = -3, to = 3, length = 101), 
+         show_rownames = FALSE,
+         fontsize = 20)
+dev.off()
+```
+
+```{r}
+
+mapGO(sig_temp, lfcs_cont, anns, "GO:0140825")
+mapGO(sig_temp, lfcs_cont, anns, "GO:0004601")
+mapGO(sig_temp, lfcs_cont, anns, "GO:0020037")
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(clusterProfiler)
+library(enrichplot)
+test <- data.frame(Gene = anns$Gene.Names..ORF., GO_Terms = anns$Gene.Ontology..cellular.component.)
+head(test)
+gene_df <- test %>%
+  separate_rows(GO_Terms, sep = "; ") %>%
+  mutate(GO_Terms = trimws(GO_Terms))
+result_df <- gene_df %>%
+  group_by(GO_Terms) %>%
+  summarize(Genes = list(unique(Gene))) %>%
+  ungroup()
+
+comp_df <- result_df[-1,]
+head(comp_df)
+
+test <- data.frame(Gene = anns$Gene.Names..ORF., GO_Terms = anns$Gene.Ontology..biological.process.)
+head(test)
+gene_df <- test %>%
+  separate_rows(GO_Terms, sep = "; ") %>%
+  mutate(GO_Terms = trimws(GO_Terms))
+result_df <- gene_df %>%
+  group_by(GO_Terms) %>%
+  summarize(Genes = list(unique(Gene))) %>%
+  ungroup()
+
+proc_df <- result_df[-1,]
+head(proc_df)
+
+test <- data.frame(Gene = anns$Gene.Names..ORF., GO_Terms = anns$Gene.Ontology..molecular.function.)
+head(test)
+gene_df <- test %>%
+  separate_rows(GO_Terms, sep = "; ") %>%
+  mutate(GO_Terms = trimws(GO_Terms))
+result_df <- gene_df %>%
+  group_by(GO_Terms) %>%
+  summarize(Genes = list(unique(Gene))) %>%
+  ungroup()
+
+func_df <- result_df[-1,]
+head(func_df)
+
+```
+
+``` {r}
+wt_up_func <- enricher(gene = wt_up_ann$Gene.Names..ORF., TERM2GENE = func_df)
+head(wt_up_func)
+png(filename="plots/GO/wt_up_func.png")
+barplot(wt_up_func, title="GO Enrichment by Function (wt_up)")
+dev.off()
+wt_up_comp <- enricher(gene = wt_up_ann$Gene.Names..ORF., TERM2GENE = comp_df)
+head(wt_up_comp)
+png(filename="plots/GO/wt_up_comp.png")
+barplot(wt_up_comp, title="GO Enrichment by Component (wt_up)")
+dev.off()
+wt_up_proc <- enricher(gene = wt_up_ann$Gene.Names..ORF., TERM2GENE = proc_df)
+head(wt_up_proc)
+png(filename="plots/GO/wt_up_proc.png")
+barplot(wt_up_proc, title="GO Enrichment by Process (wt_up)")
+dev.off()
+```
+
+``` {r}
+wt_dn_func <- enricher(gene = wt_dn_ann$Gene.Names..ORF., TERM2GENE = func_df)
+head(wt_dn_func)
+png(filename="plots/GO/wt_dn_func.png")
+#barplot(wt_dn_func, title="GO Enrichment by Function (wt_dn)")
+dev.off()
+wt_dn_comp <- enricher(gene = wt_dn_ann$Gene.Names..ORF., TERM2GENE = comp_df)
+head(wt_dn_comp)
+png(filename="plots/GO/wt_dn_comp.png")
+#barplot(wt_dn_comp, title="GO Enrichment by Component (wt_dn)")
+dev.off()
+wt_dn_proc <- enricher(gene = wt_dn_ann$Gene.Names..ORF., TERM2GENE = proc_df)
+head(wt_dn_proc)
+png(filename="plots/GO/wt_dn_proc.png")
+#barplot(wt_dn_proc, title="GO Enrichment by Process (wt_dn)")
+dev.off()
+```
+
+``` {r}
+wt_func <- enricher(gene = wt_ann$Gene.Names..ORF., TERM2GENE = func_df)
+head(wt_func)
+png(filename="plots/GO/wt_func.png")
+barplot(wt_func, title="GO Enrichment by Function (wt)")
+dev.off()
+wt_comp <- enricher(gene = wt_ann$Gene.Names..ORF., TERM2GENE = comp_df)
+head(wt_comp)
+png(filename="plots/GO/wt_comp.png")
+barplot(wt_comp, title="GO Enrichment by Component (wt)")
+dev.off()
+wt_proc <- enricher(gene = wt_ann$Gene.Names..ORF., TERM2GENE = proc_df)
+head(wt_proc)
+png(filename="plots/GO/wt_proc.png")
+barplot(wt_proc, title="GO Enrichment by Process (wt)")
+dev.off()
+```
+
+``` {r}
+ts_up_func <- enricher(gene = ts_up_ann$Gene.Names..ORF., TERM2GENE = func_df)
+head(ts_up_func)
+png(filename="plots/GO/ts_up_func.png")
+barplot(ts_up_func, title="GO Enrichment by Function (ts_up)")
+dev.off()
+ts_up_comp <- enricher(gene = ts_up_ann$Gene.Names..ORF., TERM2GENE = comp_df)
+head(ts_up_comp)
+png(filename="plots/GO/ts_up_comp.png")
+barplot(ts_up_comp, title="GO Enrichment by Component (ts_up)")
+dev.off()
+ts_up_proc <- enricher(gene = ts_up_ann$Gene.Names..ORF., TERM2GENE = proc_df)
+head(ts_up_proc)
+png(filename="plots/GO/ts_up_proc.png")
+barplot(ts_up_proc, title="GO Enrichment by Process (ts_up)")
+dev.off()
+```
+
+``` {r}
+ts_dn_func <- enricher(gene = ts_dn_ann$Gene.Names..ORF., TERM2GENE = func_df)
+head(ts_dn_func)
+png(filename="plots/GO/ts_dn_func.png")
+#barplot(ts_dn_func, title="GO Enrichment by Function (ts_dn)")
+dev.off()
+ts_dn_comp <- enricher(gene = ts_dn_ann$Gene.Names..ORF., TERM2GENE = comp_df)
+head(ts_dn_comp)
+png(filename="plots/GO/ts_dn_comp.png")
+barplot(ts_dn_comp, title="GO Enrichment by Component (ts_dn)")
+dev.off()
+ts_dn_proc <- enricher(gene = ts_dn_ann$Gene.Names..ORF., TERM2GENE = proc_df)
+head(ts_dn_proc)
+png(filename="plots/GO/ts_dn_proc.png")
+#barplot(ts_dn_proc, title="GO Enrichment by Process (ts_dn)")
+dev.off()
+```
+
+``` {r}
+ts_func <- enricher(gene = ts_ann$Gene.Names..ORF., TERM2GENE = func_df)
+head(ts_func)
+png(filename="plots/GO/ts_func.png")
+barplot(ts_func, title="GO Enrichment by Function (ts)")
+dev.off()
+ts_comp <- enricher(gene = ts_ann$Gene.Names..ORF., TERM2GENE = comp_df)
+head(ts_comp)
+png(filename="plots/GO/ts_comp.png")
+barplot(ts_dn_comp, title="GO Enrichment by Component (ts)")
+dev.off()
+ts_proc <- enricher(gene = ts_ann$Gene.Names..ORF., TERM2GENE = proc_df)
+head(ts_proc)
+png(filename="plots/GO/ts_proc.png")
+barplot(ts_proc, title="GO Enrichment by Process (ts)")
+dev.off()
+```
+
+``` {r}
+cont_up_func <- enricher(gene = cont_up_ann$Gene.Names..ORF., TERM2GENE = func_df)
+head(cont_up_func)
+png(filename="plots/GO/cont_up_func.png")
+barplot(cont_up_func, title="GO Enrichment by Function (cont_up)")
+dev.off()
+cont_up_comp <- enricher(gene = cont_up_ann$Gene.Names..ORF., TERM2GENE = comp_df)
+head(cont_up_comp)
+png(filename="plots/GO/cont_up_comp.png")
+#barplot(cont_up_comp, title="GO Enrichment by Component (cont_up)")
+dev.off()
+cont_up_proc <- enricher(gene = cont_up_ann$Gene.Names..ORF., TERM2GENE = proc_df)
+head(cont_up_proc)
+png(filename="plots/GO/cont_up_proc.png")
+barplot(cont_up_proc, title="GO Enrichment by Process (cont_up)")
+dev.off()
+```
+
+``` {r}
+cont_dn_func <- enricher(gene = cont_dn_ann$Gene.Names..ORF., TERM2GENE = func_df)
+head(cont_dn_func)
+png(filename="plots/GO/cont_dn_func.png")
+barplot(cont_dn_func, title="GO Enrichment by Function (cont_dn)")
+dev.off()
+cont_dn_comp <- enricher(gene = cont_dn_ann$Gene.Names..ORF., TERM2GENE = comp_df)
+head(cont_dn_comp)
+png(filename="plots/GO/cont_dn_comp.png")
+#barplot(cont_dn_comp, title="GO Enrichment by Component (cont_dn)")
+dev.off()
+cont_dn_proc <- enricher(gene = cont_dn_ann$Gene.Names..ORF., TERM2GENE = proc_df)
+head(cont_dn_proc)
+png(filename="plots/GO/cont_dn_proc.png")
+barplot(cont_dn_proc, title="GO Enrichment by Process (cont_dn)")
+dev.off()
+```
+
+``` {r}
+cont_func <- enricher(gene = cont_ann$Gene.Names..ORF., TERM2GENE = func_df)
+head(cont_func)
+png(filename="plots/GO/cont_func.png")
+barplot(cont_func, title="GO Enrichment by Function (cont)")
+dev.off()
+cont_comp <- enricher(gene = cont_ann$Gene.Names..ORF., TERM2GENE = comp_df)
+head(cont_comp)
+png(filename="plots/GO/cont_comp.png")
+barplot(cont_comp, title="GO Enrichment by Component (cont)")
+dev.off()
+cont_proc <- enricher(gene = cont_ann$Gene.Names..ORF., TERM2GENE = proc_df)
+head(cont_proc)
+png(filename="plots/GO/cont_proc.png")
+barplot(cont_proc, title="GO Enrichment by Process (cont)")
+dev.off()
+```
+
+``` {r}
+temp_up_func <- enricher(gene = temp_up_ann$Gene.Names..ORF., TERM2GENE = func_df)
+head(temp_up_func)
+png(filename="plots/GO/temp_up_func.png")
+barplot(temp_up_func, title="GO Enrichment by Function (temp_up)")
+dev.off()
+temp_up_comp <- enricher(gene = temp_up_ann$Gene.Names..ORF., TERM2GENE = comp_df)
+head(temp_up_comp)
+png(filename="plots/GO/temp_up_comp.png")
+barplot(temp_up_comp, title="GO Enrichment by Component (temp_up)")
+dev.off()
+temp_up_proc <- enricher(gene = temp_up_ann$Gene.Names..ORF., TERM2GENE = proc_df)
+head(temp_up_proc)
+png(filename="plots/GO/temp_up_proc.png")
+barplot(temp_up_proc, title="GO Enrichment by Process (temp_up)")
+dev.off()
+```
+
+``` {r}
+temp_dn_func <- enricher(gene = temp_dn_ann$Gene.Names..ORF., TERM2GENE = func_df)
+head(temp_dn_func)
+png(filename="plots/GO/temp_dn_func.png")
+barplot(temp_dn_func, title="GO Enrichment by Function (temp_dn)")
+dev.off()
+temp_dn_comp <- enricher(gene = temp_dn_ann$Gene.Names..ORF., TERM2GENE = comp_df)
+head(temp_dn_comp)
+png(filename="plots/GO/temp_dn_comp.png")
+barplot(temp_dn_comp, title="GO Enrichment by Component (temp_dn)")
+dev.off()
+temp_dn_proc <- enricher(gene = temp_dn_ann$Gene.Names..ORF., TERM2GENE = proc_df)
+head(temp_dn_proc)
+png(filename="plots/GO/temp_dn_proc.png")
+barplot(temp_dn_proc, title="GO Enrichment by Process (temp_dn)")
+dev.off()
+```
+
+``` {r}
+temp_func <- enricher(gene = temp_ann$Gene.Names..ORF., TERM2GENE = func_df, pvalueCutoff = 0.05)
+head(temp_func)
+png(filename="plots/GO/temp_func.png")
+barplot(temp_func, title="GO Enrichment by Function (temp)")
+dev.off()
+temp_comp <- enricher(gene = temp_ann$Gene.Names..ORF., TERM2GENE = comp_df)
+head(temp_comp)
+png(filename="plots/GO/temp_comp.png")
+barplot(temp_dn_comp, title="GO Enrichment by Component (temp)")
+dev.off()
+temp_proc <- enricher(gene = temp_ann$Gene.Names..ORF., TERM2GENE = proc_df)
+head(temp_proc)
+png(filename="plots/GO/temp_proc.png")
+barplot(temp_proc, title="GO Enrichment by Process (temp)")
+dev.off()
+```
